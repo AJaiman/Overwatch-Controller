@@ -8,6 +8,11 @@
 #define RIGHT_CLICK_PIN 5
 #define LEFT_CLICK_PIN 6
 
+bool w = false;
+bool a = false;
+bool s = false;
+bool d = false;
+
 void setup() {
   Serial.begin(115200); // Faster serial communication
 
@@ -25,6 +30,29 @@ void loop() {
   int moveX = map(xValue, 0, 1023, -5, 5);
   int moveY = map(yValue, 0, 1023, -5, 5);
 
+
+  if (moveX > 2) {
+    d = true;
+  } else {
+    d = false;
+  }
+  if (moveX < -2) {
+    a = true;
+  } else {
+    a = false;
+  }
+
+  if (moveY > 2) {
+    s = true;
+  } else {
+    s = false;
+  }
+  if (moveY < -2) {
+    w = true;
+  } else {
+    w = false;
+  }
+
   // Read Button States
   bool shiftPress = digitalRead(SHIFT_PIN) == LOW;
   bool qPress = digitalRead(Q_PIN) == LOW;
@@ -32,9 +60,13 @@ void loop() {
   bool rightClickPress = digitalRead(RIGHT_CLICK_PIN) == LOW;
   bool leftClickPress = digitalRead(LEFT_CLICK_PIN) == LOW;
 
-  Serial.print(moveX);
+  Serial.print(w);
   Serial.print(",");
-  Serial.print(moveY);
+  Serial.print(a);
+  Serial.print(",");
+  Serial.print(s);
+  Serial.print(",");
+  Serial.print(d);
   Serial.print(",");
   Serial.print(shiftPress);
   Serial.print(",");

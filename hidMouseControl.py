@@ -66,32 +66,35 @@ def key_press(vk_code, state):
 VK_SHIFT = 0x10
 VK_Q = 0x51
 VK_E = 0x45
+VK_W = 0x57
+VK_A = 0x41
+VK_S = 0x53
+VK_D = 0x44
 
 ser = serial.Serial('COM3', 115200)
 time.sleep(2)
 
-previous_states = {"shift": False, "q": False, "e": False, "right_click": False, "left_click": False}
+previous_states = {"w": False,"a": False, "s": False, "d": False, "shift": False, "q": False, "e": False, "right_click": False, "left_click": False}
 
 while True:
     try:
         line = ser.readline().decode().strip()
         data = list(map(int, line.split(",")))
 
-        dx, dy, shiftPress, qPress, ePress, rightClickPress, leftClickPress = data
-
-        dx = 0 if abs(dx) <= 1 else dx
-        dy = 0 if abs(dy) <= 1 else dy
-
-        if dx != 0 or dy != 0:
-            send_mouse_input(dx, dy)
+        wPress, aPress, sPress, dPress, shiftPress, qPress, ePress, rightClickPress, leftClickPress = data
 
         button_map = {
             "shift": (VK_SHIFT, shiftPress),
             "q": (VK_Q, qPress),
             "e": (VK_E, ePress),
+            "w": (VK_W, wPress),
+            "a": (VK_A, aPress),
+            "s": (VK_S, sPress),
+            "d": (VK_D, dPress),
             "right_click": ("right", rightClickPress),
             "left_click": ("left", leftClickPress)
         }
+
 
         for button, (vk_code, state) in button_map.items():
             if state and not previous_states[button]:
