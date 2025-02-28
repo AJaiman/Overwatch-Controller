@@ -41,28 +41,34 @@ class INPUT(ctypes.Structure):
                 ("u", _INPUT)]
 
 def send_mouse_input(dx, dy):
+    """Send relative mouse movement using SendInput."""
     extra = ctypes.c_ulong(0)
     mi = MOUSEINPUT(dx, dy, 0, MOUSEEVENTF_MOVE, 0, ctypes.pointer(extra))
     inp = INPUT(INPUT_MOUSE, _INPUT(mi=mi))
     ctypes.windll.user32.SendInput(1, ctypes.pointer(inp), ctypes.sizeof(inp))
 
 def mouse_click(button, state):
+    """Send a mouse click event (left or right) based on the button and state."""
     extra = ctypes.c_ulong(0)
-    flag = MOUSEEVENTF_LEFTDOWN if button == "left" and state else MOUSEEVENTF_LEFTUP
-    if button == "right":
+    if button == "left":
+        flag = MOUSEEVENTF_LEFTDOWN if state else MOUSEEVENTF_LEFTUP
+    elif button == "right":
         flag = MOUSEEVENTF_RIGHTDOWN if state else MOUSEEVENTF_RIGHTUP
-
+    else:
+        return
     mi = MOUSEINPUT(0, 0, 0, flag, 0, ctypes.pointer(extra))
     inp = INPUT(INPUT_MOUSE, _INPUT(mi=mi))
     ctypes.windll.user32.SendInput(1, ctypes.pointer(inp), ctypes.sizeof(inp))
 
 def key_press(vk_code, state):
+    """Send a key press or release event based on the virtual key code."""
     extra = ctypes.c_ulong(0)
     flag = KEYEVENTF_KEYDOWN if state else KEYEVENTF_KEYUP
     ki = KEYBDINPUT(vk_code, 0, flag, 0, ctypes.pointer(extra))
     inp = INPUT(INPUT_KEYBOARD, _INPUT(ki=ki))
     ctypes.windll.user32.SendInput(1, ctypes.pointer(inp), ctypes.sizeof(inp))
 
+# Virtual Key Codes for letters and shift
 VK_SHIFT = 0x10
 VK_Q = 0x51
 VK_E = 0x45
@@ -71,18 +77,50 @@ VK_A = 0x41
 VK_S = 0x53
 VK_D = 0x44
 
-ser = serial.Serial('COM3', 115200)
-time.sleep(2)
+# --- Serial Setup ---
+SERIAL_PORT = "COM3"  # Update this as needed (e.g., "COM3" on Windows or "/dev/ttyUSB0" on Linux)
+BAUD_RATE = 115200
 
-previous_states = {"w": False,"a": False, "s": False, "d": False, "shift": False, "q": False, "e": False, "right_click": False, "left_click": False}
+ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
+time.sleep(2)  # Allow time for the connection to initialize
+
+# Dictionary to track previous states of keys/buttons
+previous_states = {
+    "w": False,
+    "a": False,
+    "s": False,
+    "d": False,
+    "shift": False,
+    "q": False,
+    "e": False,
+    "right_click": False,
+    "left_click": False
+}
 
 while True:
     try:
-        line = ser.readline().decode().strip()
-        data = list(map(int, line.split(",")))
+        line = ser.readline().decode('utf-8').strip()
+        if not line:
+            continue
 
-        wPress, aPress, sPress, dPress, shiftPress, qPress, ePress, rightClickPress, leftClickPress = data
+        # Expecting an 11-value comma-separated string:
+        # w, a, s, d, shift, q, e, right_click, left_click, dx, dy
+        parts = line.split(',')
+        if len(parts) != 11:
+            print("Unexpected data length:", parts)
+            continue
 
+        try:
+            # Convert all values to integers
+            data = list(map(int, parts))
+        except ValueError:
+            print("Received non-integer values:", parts)
+            continue
+
+        # Unpack values
+        wPress, aPress, sPress, dPress, shiftPress, qPress, ePress, rightClickPress, leftClickPress, dx, dy = data
+
+        # Map buttons and joystick directions to their virtual key codes or click labels
         button_map = {
             "shift": (VK_SHIFT, shiftPress),
             "q": (VK_Q, qPress),
@@ -95,7 +133,7 @@ while True:
             "left_click": ("left", leftClickPress)
         }
 
-
+        # Process each key/button and send events on state changes
         for button, (vk_code, state) in button_map.items():
             if state and not previous_states[button]:
                 if "click" in button:
@@ -107,8 +145,14 @@ while True:
                     mouse_click(vk_code, False)
                 else:
                     key_press(vk_code, False)
-
             previous_states[button] = state
+
+        # Process relative mouse movement using the dx, dy values
+        send_mouse_input(dx, dy)
+
+    except KeyboardInterrupt:
+        print("Exiting...")
+        break
     except Exception as e:
         print("Error:", e)
         continue
