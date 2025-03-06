@@ -76,6 +76,7 @@ VK_W = 0x57
 VK_A = 0x41
 VK_S = 0x53
 VK_D = 0x44
+VK_R = 0x52
 
 # --- Serial Setup ---
 SERIAL_PORT = "COM3"  # Update this as needed (e.g., "COM3" on Windows or "/dev/ttyUSB0" on Linux)
@@ -94,7 +95,8 @@ previous_states = {
     "q": False,
     "e": False,
     "right_click": False,
-    "left_click": False
+    "left_click": False,
+    "r": False
 }
 
 while True:
@@ -118,7 +120,7 @@ while True:
             continue
 
         # Unpack values
-        wPress, aPress, sPress, dPress, shiftPress, qPress, ePress, rightClickPress, leftClickPress, dx, dy = data
+        wPress, aPress, sPress, dPress, shiftPress, qPress, ePress, rightClickPress, leftClickPress, rPress, dx, dy = data
 
         # Map buttons and joystick directions to their virtual key codes or click labels
         button_map = {
@@ -129,6 +131,7 @@ while True:
             "a": (VK_A, aPress),
             "s": (VK_S, sPress),
             "d": (VK_D, dPress),
+            "r": (VK_R, rPress),
             "right_click": ("right", rightClickPress),
             "left_click": ("left", leftClickPress)
         }

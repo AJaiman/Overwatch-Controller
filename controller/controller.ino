@@ -20,6 +20,7 @@ float timeStep = 0.01;
 #define E_PIN 4
 #define RIGHT_CLICK_PIN 5
 #define LEFT_CLICK_PIN 6
+#define R_PIN 7
 
 bool w = false;
 bool a = false;
@@ -43,6 +44,7 @@ void setup() {
   pinMode(E_PIN, INPUT_PULLUP);
   pinMode(RIGHT_CLICK_PIN, INPUT_PULLUP);
   pinMode(LEFT_CLICK_PIN, INPUT_PULLUP);
+  pinMode(R_PIN, INPUT_PULLUP);
 }
 
 void loop() {
@@ -86,6 +88,7 @@ void loop() {
   bool ePress = (digitalRead(E_PIN) == LOW);
   bool rightClickPress = (digitalRead(RIGHT_CLICK_PIN) == LOW);
   bool leftClickPress = (digitalRead(LEFT_CLICK_PIN) == LOW);
+  bool rPress = (digitalRead(R_PIN) == LOW);
 
   // ----- Combined Serial Output -----
   // Print joystick and button states first (w,a,s,d, shift, q, e, rightClick, leftClick)
@@ -106,6 +109,9 @@ void loop() {
   Serial.print(rightClickPress);
   Serial.print(",");
   Serial.print(leftClickPress);
+  Serial.print(",");
+  Serial.print(rPress);
+
   
   // Append the relative mouse movement (dx, dy) at the end
   Serial.print(",");
