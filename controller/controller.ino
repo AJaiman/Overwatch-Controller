@@ -30,6 +30,7 @@ bool d = false;
 void setup() {
   Serial.begin(115200);
 
+
   // Initialize MPU6050
   while (!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G)) {
     Serial.println("Could not find a valid MPU6050 sensor, check wiring!");
@@ -66,8 +67,8 @@ void loop() {
   float deltaRoll = roll - prevRoll;
 
   // Convert changes to relative pixel movement and invert signs
-  int dx = (int)(deltaYaw * SENSITIVITY_YAW) * -1;
-  int dy = (int)(deltaRoll * SENSITIVITY_ROLL) * -1;
+  int dy = (int)(deltaYaw * SENSITIVITY_YAW);
+  int dx = (int)(deltaRoll * SENSITIVITY_ROLL) * -1;
 
   // ----- Joystick & Button Processing -----
   int xValue = analogRead(VRX_PIN);
@@ -77,10 +78,10 @@ void loop() {
   int moveY = map(yValue, 0, 1023, -5, 5);
 
   // Set directional booleans based on joystick threshold
-  d = (moveX > 2);
-  a = (moveX < -2);
-  s = (moveY > 2);
-  w = (moveY < -2);
+  w = (moveX > 2);
+  s = (moveX < -2);
+  d = (moveY > 2);
+  a = (moveY < -2);
 
   // Read button states (active LOW)
   bool shiftPress = (digitalRead(SHIFT_PIN) == LOW);
@@ -112,7 +113,6 @@ void loop() {
   Serial.print(",");
   Serial.print(rPress);
 
-  
   // Append the relative mouse movement (dx, dy) at the end
   Serial.print(",");
   Serial.print(dx);

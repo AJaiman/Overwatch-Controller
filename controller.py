@@ -108,7 +108,7 @@ while True:
         # Expecting an 11-value comma-separated string:
         # w, a, s, d, shift, q, e, right_click, left_click, dx, dy
         parts = line.split(',')
-        if len(parts) != 11:
+        if len(parts) != 12:
             print("Unexpected data length:", parts)
             continue
 
