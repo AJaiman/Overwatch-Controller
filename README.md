@@ -34,7 +34,7 @@ pip install pyserial
 
 ### Connect & Run
 
-- Connect the Arduino to the PC via USB (make sure the controller is held still for one second for GPU calibration).
+- Connect the Arduino to the PC via USB (make sure the controller is held still for one second for IMU calibration).
 - Make sure to update the name of the USB port in `controller.py`.
 - Run the Python script to start reading inputs and emulating controls.
 
